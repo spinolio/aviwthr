@@ -51,31 +51,34 @@ station_cfg = {
 id_str = ','.join(station_cfg.keys())
 
 uri='https://aviationweather.gov/api/data/metar'
+colors={'LIFR':'magenta', 'IFR':'red', 'MVFR':'blue', 'VFR':'green'}
 
 r = requests.get('https://aviationweather.gov/api/data/metar', params={'ids' : id_str, 'format' : 'json'})
 
 wjson=json.loads(r.text)
 
-colors={'LIFR':'magenta', 'IFR':'red', 'MVFR':'blue', 'VFR':'green', '-':'black'}
+# Set the colors of all station IDs returned based on the fltCat value..
 
-# Set the colors of all station IDs returned.
 for w in wjson:
-    tf = w.get('fltCat', None)
-    if tf == None:
+    flt_cat = w.get('fltCat', None)
+    if flt_cat == None:
         continue
-    tfc = colors[tf]
-    station_cfg[w['icaoId']][0] = tfc
+    station_cfg[w['icaoId']][0] = flt_cat
     
+# Check the status colors determined above to see if any were not processed. Use the
+# primary and then secondary backup stations to fill in the missing data.
+
 for k, v in station_cfg.items():
     if v[0] == None:
         # Try using first backup
-        cv = station_cfg[v[1]][0]
+        flt_cat = station_cfg[v[1]][0]
         print(k, '<=', v[1])
-        if cv == None:
+        if flt_cat == None:
             # Egad, try using second backup
-            cv = station_cfg[v[2]][0]
+            flt_cat = station_cfg[v[2]][0]
             print(k, '<==', v[2])
     else:
-        cv = v[0]
-    print(f'{k}: {cv}')
+        flt_cat = v[0]
+        led_color = colors[flt_cat]
+    print(f'{k}: {flt_cat} ({led_color})')
 
