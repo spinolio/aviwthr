@@ -4,18 +4,13 @@ import board
 import neopixel
 import time
 
-# I only have 10 leds; The legend will have to come later.
+# I only have 10 leds; The legend uses 5.
 station_cfg = {
     'KLWC': [None, 'KTOP', 'KIXD'],
     'KMCI': [None, 'KMKC', 'KGPH'],
     'KGPH': [None, 'KMCI', 'KMKC'],
     'KMKC': [None, 'KMCI', 'KLXT'],
     'KLXT': [None, 'KMKC', 'KOJC'],
-    'KOJC': [None, 'KIXD', 'KLXT'],
-    'KIXD': [None, 'KOJC', 'KLWC'],
-    'KOWI': [None, 'KIXD', 'KUKL'],
-    'KLRY': [None, 'KOJC', 'KLXT'],
-    'KFSK': [None, 'KPTS', 'KCNU'],
 }
 
 leds = neopixel.NeoPixel(board.D18, 10, auto_write=False)
@@ -24,7 +19,16 @@ leds = neopixel.NeoPixel(board.D18, 10, auto_write=False)
 id_str = ','.join(station_cfg.keys())
 
 uri='https://aviationweather.gov/api/data/metar'
-colors={'LIFR':(16, 0, 16), 'IFR':(32, 0, 0), 'MVFR':(0, 0, 32), 'VFR':(0, 32, 0)}
+
+color_magenta = (16, 0, 16)
+color_red = (32, 0, 0)
+color_blue = (0, 0, 32)
+color_yellow = (18, 14, 0)
+color_green = (0, 32, 0)
+colors={'LIFR':color_magenta, 'IFR':color_red, 'MVFR':color_blue, 'WVFR': color_yellow, 'VFR':color_green}
+
+# The first five LEDs will stay the same.
+led_n0 = 5
 
 # For now just run a set number of loops
 for x in range(5):
@@ -46,7 +50,12 @@ for x in range(5):
     # Check the status determined above to see if any were not processed. Use the
     # primary and then secondary backup stations to fill in the missing data.
 
-    led_n = 0
+    leds[0] = color_magenta
+    leds[1] = color_red
+    leds[2] = color_blue
+    leds[3] = color_yellow
+    leds[4] = color_green
+    led_n = led_n0
     for k, v in station_cfg.items():
         if v[0] == None:
             # Try using first backup
