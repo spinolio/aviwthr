@@ -74,9 +74,11 @@ led_skip = 2
 led_n0 = 5 + led_skip
 led_len = led_n0 + len(station_cfg)
 leds = neopixel.NeoPixel(board.D18, led_len, auto_write=False)
+# Update time delay for LED strip in seconds
+led_td = 5
 
 # For now just run a set number of loops
-for x in range(1):
+while True:
     leds.fill([0,0,0])
     for k in station_cfg.keys():
         station_cfg[k][0] = None
@@ -117,5 +119,6 @@ for x in range(1):
         led_n += 1
 
     time.sleep(1)
-    leds.show()
-    time.sleep(120)
+    for t in range(1500, -1, -led_td):
+        leds.show()
+        time.sleep(led_td)
