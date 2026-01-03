@@ -4,34 +4,79 @@ import board
 import neopixel
 import time
 
-# I only have 10 leds; The legend uses 5.
+def rgb2grb(c):
+    return (c[1], c[0], c[2])
+
+def no_map(c):
+    return c
+
 station_cfg = {
+    'KBVO': [None, 'KCFV', 'KPPF'],
+    'KIDP': [None, 'KCFV', 'KPPF'],
+    'KCFV': [None, 'KIDP', 'KPPF'],
+    'KPPF': [None, 'KCFV', 'KCNU'],
+    'KCNU': [None, 'KPPF', 'KCFV'],
+    'KUKL': [None, 'KEMP', 'KOWI'],
+    'K13K': [None, 'KEQA', 'KEMP'],
+    'KEQA': [None, 'K13K', 'KEMP'],
+    'KEMP': [None, 'KUKL', 'K13K'],
+    'KFRI': [None, 'KMHK', 'KFOE'],
+    'KMHK': [None, 'KFRI', 'KTOP'],
+    'KFOE': [None, 'KTOP', 'KLWC'],
+    'KTOP': [None, 'KFOE', 'KLWC'],
     'KLWC': [None, 'KTOP', 'KIXD'],
     'KMCI': [None, 'KMKC', 'KGPH'],
     'KGPH': [None, 'KMCI', 'KMKC'],
     'KMKC': [None, 'KMCI', 'KLXT'],
     'KLXT': [None, 'KMKC', 'KOJC'],
+    'KOJC': [None, 'KIXD', 'KLXT'],
+    'KIXD': [None, 'KOJC', 'KLWC'],
+    'KOWI': [None, 'KIXD', 'KUKL'],
+    'KLRY': [None, 'KOJC', 'KLXT'],
+    'KFSK': [None, 'KPTS', 'KCNU'],
+    'KPTS': [None, 'KFSK', 'KJLN'],
+    'KJLN': [None, 'KPTS', 'KHFJ'],
+    'KGMJ': [None, 'KJLN', 'KHFJ'],
+    'KHFJ': [None, 'KJLN', 'KSGF'],
+    'KBBG': [None, 'KFWB', 'KSGF'],
+    'KFWB': [None, 'KBBG', 'KSGF'],
+    'KSGF': [None, 'KFWB', 'KHFJ'],
+    'KLBO': [None, 'KOZS', 'KTBN'],
+    'KTBN': [None, 'KLBO', 'KOZS'],
+    'KOZS': [None, 'KLBO', 'KTBN'],
+    'KAIZ': [None, 'KOZS', 'KTBN'],
+    'KRAW': [None, 'KGLY', 'KDMO'],
+    'KGLY': [None, 'KRAW', 'KSZL'],
+    'KSZL': [None, 'KDMO', 'KGLY'],
+    'KDMO': [None, 'KSZL', 'KMHL'],
+    'KMHL': [None, 'KDMO', 'KSZL'],
+    'KMBY': [None, 'KVER', 'KCOU'],
+    'KVER': [None, 'KCOU', 'KMHL'],
+    'KCOU': [None, 'KJEF', 'KVER'],
+    'KJEF': [None, 'KCOU', 'KVER'],
 }
-
-leds = neopixel.NeoPixel(board.D18, 10, auto_write=False)
 
 # Create comma-separated list of station IDs for web api
 id_str = ','.join(station_cfg.keys())
-
 uri='https://aviationweather.gov/api/data/metar'
 
-color_magenta = (16, 0, 16)
-color_red = (32, 0, 0)
-color_blue = (0, 0, 32)
-color_yellow = (18, 14, 0)
-color_green = (0, 32, 0)
+# Must choose an RGB color_map from no_map, rgb2grb
+color_map = no_map
+color_magenta = color_map((16, 0, 16))
+color_red = color_map((32, 0, 0))
+color_blue = color_map((0, 0, 32))
+color_yellow = color_map((18, 14, 0))
+color_green = color_map((0, 32, 0))
 colors={'LIFR':color_magenta, 'IFR':color_red, 'MVFR':color_blue, 'WVFR': color_yellow, 'VFR':color_green}
 
-# The first five LEDs will stay the same.
-led_n0 = 5
+# The LED strip starts with 0 or more skipped LEDs followed by 5 legend LEDs
+led_skip = 2
+led_n0 = 5 + led_skip
+led_len = led_n0 + len(station_cfg)
+leds = neopixel.NeoPixel(board.D18, led_len, auto_write=False)
 
 # For now just run a set number of loops
-for x in range(5):
+for x in range(1):
     leds.fill([0,0,0])
     for k in station_cfg.keys():
         station_cfg[k][0] = None
@@ -50,11 +95,11 @@ for x in range(5):
     # Check the status determined above to see if any were not processed. Use the
     # primary and then secondary backup stations to fill in the missing data.
 
-    leds[0] = color_magenta
-    leds[1] = color_red
-    leds[2] = color_blue
-    leds[3] = color_yellow
-    leds[4] = color_green
+    leds[led_skip] = color_magenta
+    leds[led_skip+1] = color_red
+    leds[led_skip+2] = color_blue
+    leds[led_skip+3] = color_yellow
+    leds[led_skip+4] = color_green
     led_n = led_n0
     for k, v in station_cfg.items():
         if v[0] == None:
