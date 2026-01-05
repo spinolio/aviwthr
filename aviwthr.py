@@ -79,6 +79,7 @@ led_td = 5
 
 # For now just run a set number of loops
 while True:
+    print(time.strftime('%m.%d-%H:%M:%S'), ' === Start processing loop ===')
     leds.fill([0,0,0])
     for k in station_cfg.keys():
         station_cfg[k][0] = None
@@ -107,18 +108,24 @@ while True:
         if v[0] == None:
             # Try using first backup
             flt_cat = station_cfg[v[1]][0]
-            # print(k, '<=', v[1])
             if flt_cat == None:
+                print(k, '<!', v[1])
                 # Egad, try using second backup
                 flt_cat = station_cfg[v[2]][0]
-                # print(k, '<==', v[2])
+                if flt_cat == None:
+                    print(k, '<!!', v[2])
+                else:
+                    print(k, '<==', v[2])
+            else:
+                print(k, '<=', v[1])
         else:
             flt_cat = v[0]
         if flt_cat != None:
+            print(f'{k}: {flt_cat}')
             leds[led_n] = colors[flt_cat]
         led_n += 1
 
     time.sleep(1)
-    for t in range(1500, -1, -led_td):
+    for t in range(900, -1, -led_td):
         leds.show()
         time.sleep(led_td)
