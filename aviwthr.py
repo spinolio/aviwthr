@@ -4,12 +4,6 @@ import board
 import neopixel
 import time
 
-def rgb2grb(c):
-    return (c[1], c[0], c[2])
-
-def no_map(c):
-    return c
-
 station_cfg = {
     'KBVO': [None, 'KCFV', 'KPPF'],
     'KIDP': [None, 'KCFV', 'KPPF'],
@@ -60,13 +54,11 @@ station_cfg = {
 id_str = ','.join(station_cfg.keys())
 uri='https://aviationweather.gov/api/data/metar'
 
-# Must choose an RGB color_map from no_map, rgb2grb
-color_map = no_map
-color_magenta = color_map((16, 0, 16))
-color_red = color_map((32, 0, 0))
-color_blue = color_map((0, 0, 32))
-color_yellow = color_map((18, 14, 0))
-color_green = color_map((0, 32, 0))
+color_magenta = (16, 0, 16)
+color_red = (32, 0, 0)
+color_blue = (0, 0, 32)
+color_yellow = (18, 14, 0)
+color_green = (0, 32, 0)
 num_black = 0
 num_magenta = 1
 num_red = 2
@@ -80,7 +72,7 @@ color_map={'LIFR':num_magenta, 'IFR':num_red, 'MVFR':num_blue, 'WVFR': num_yello
 led_skip = 2
 led_n0 = 5 + led_skip
 led_len = led_n0 + len(station_cfg)
-leds = neopixel.NeoPixel(board.D18, led_len, auto_write=False)
+leds = neopixel.NeoPixel(board.D18, led_len, auto_write=False, pixel_order = neopixel.GRB)
 # Update time delay for LED strip in seconds
 led_td = 5
 fc_arr = [0] * len(station_cfg)
@@ -88,13 +80,10 @@ fc_arr = [0] * len(station_cfg)
 # Set up the legend LEDs
 for i in range(led_skip):
     leds[i] = (0,0,0)
-leds[led_skip] = color_magenta
-leds[led_skip+1] = color_red
-leds[led_skip+2] = color_blue
-leds[led_skip+3] = color_yellow
-leds[led_skip+4] = color_green
-first_loop = True
+for i in range(5):
+    leds[i+led_skip] = colors[i+1]
 
+first_loop = True
 while True:
     print(time.strftime('%m.%d-%H:%M:%S'), ' === Start processing loop ===')
     for i in range(len(fc_arr)):
@@ -137,7 +126,9 @@ while True:
             print(f'{k}: {flt_cat}')
             fc_arr[fc_n] = color_map[flt_cat]
         fc_n += 1
+
     # Update the LED strip
+
     time.sleep(1)
     if first_loop == True:
         first_loop = False
