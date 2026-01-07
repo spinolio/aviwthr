@@ -67,7 +67,14 @@ color_red = color_map((32, 0, 0))
 color_blue = color_map((0, 0, 32))
 color_yellow = color_map((18, 14, 0))
 color_green = color_map((0, 32, 0))
-colors={'LIFR':color_magenta, 'IFR':color_red, 'MVFR':color_blue, 'WVFR': color_yellow, 'VFR':color_green}
+num_black = 0
+num_magenta = 1
+num_red = 2
+num_blue = 3
+num_yellow = 4
+num_green = 5
+colors = [(0,0,0), color_magenta, color_red, color_blue, color_yellow, color_green]
+color_map={'LIFR':num_magenta, 'IFR':num_red, 'MVFR':num_blue, 'WVFR': num_yellow, 'VFR':num_green}
 
 # The LED strip starts with 0 or more skipped LEDs followed by 5 legend LEDs
 led_skip = 2
@@ -76,11 +83,22 @@ led_len = led_n0 + len(station_cfg)
 leds = neopixel.NeoPixel(board.D18, led_len, auto_write=False)
 # Update time delay for LED strip in seconds
 led_td = 5
+fc_arr = [0] * len(station_cfg)
 
-# For now just run a set number of loops
+# Set up the legend LEDs
+for i in range(led_skip):
+    leds[i] = (0,0,0)
+leds[led_skip] = color_magenta
+leds[led_skip+1] = color_red
+leds[led_skip+2] = color_blue
+leds[led_skip+3] = color_yellow
+leds[led_skip+4] = color_green
+first_loop = True
+
 while True:
     print(time.strftime('%m.%d-%H:%M:%S'), ' === Start processing loop ===')
-    leds.fill([0,0,0])
+    for i in range(len(fc_arr)):
+        fc_arr[i] = 0
     for k in station_cfg.keys():
         station_cfg[k][0] = None
     r = requests.get('https://aviationweather.gov/api/data/metar', params={'ids' : id_str, 'format' : 'json'})
@@ -98,12 +116,7 @@ while True:
     # Check the status determined above to see if any were not processed. Use the
     # primary and then secondary backup stations to fill in the missing data.
 
-    leds[led_skip] = color_magenta
-    leds[led_skip+1] = color_red
-    leds[led_skip+2] = color_blue
-    leds[led_skip+3] = color_yellow
-    leds[led_skip+4] = color_green
-    led_n = led_n0
+    fc_n = 0
     for k, v in station_cfg.items():
         if v[0] == None:
             # Try using first backup
@@ -122,10 +135,22 @@ while True:
             flt_cat = v[0]
         if flt_cat != None:
             print(f'{k}: {flt_cat}')
-            leds[led_n] = colors[flt_cat]
-        led_n += 1
-
+            fc_arr[fc_n] = color_map[flt_cat]
+        fc_n += 1
+    # Update the LED strip
     time.sleep(1)
-    for t in range(900, -1, -led_td):
+    if first_loop == True:
+        first_loop = False
+    else:
+        for i in range(len(station_cfg)):
+            leds[i + led_n0] = (0,0,0)
+            leds.show()
+            time.sleep(0.05)
+    for i in range(len(station_cfg)):
+        leds[i + led_n0] = colors[fc_arr[i]]
         leds.show()
+        time.sleep(0.05)
+
+    for t in range(900, -1, -led_td):
         time.sleep(led_td)
+        leds.show()
