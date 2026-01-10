@@ -5,60 +5,60 @@ import neopixel
 import time
 
 station_cfg = {
-    'KBVO': [None, 'KCFV', 'KPPF'],
-    'KIDP': [None, 'KCFV', 'KPPF'],
-    'KCFV': [None, 'KIDP', 'KPPF'],
-    'KPPF': [None, 'KCFV', 'KCNU'],
-    'KCNU': [None, 'KPPF', 'KCFV'],
-    'KUKL': [None, 'KEMP', 'KOWI'],
-    'K13K': [None, 'KEQA', 'KEMP'],
-    'KEQA': [None, 'K13K', 'KEMP'],
-    'KEMP': [None, 'KUKL', 'K13K'],
-    'KFRI': [None, 'KMHK', 'KFOE'],
-    'KMHK': [None, 'KFRI', 'KTOP'],
-    'KFOE': [None, 'KTOP', 'KLWC'],
-    'KTOP': [None, 'KFOE', 'KLWC'],
-    'KLWC': [None, 'KTOP', 'KIXD'],
-    'KMCI': [None, 'KMKC', 'KGPH'],
-    'KGPH': [None, 'KMCI', 'KMKC'],
-    'KMKC': [None, 'KMCI', 'KLXT'],
-    'KLXT': [None, 'KMKC', 'KOJC'],
-    'KOJC': [None, 'KIXD', 'KLXT'],
-    'KIXD': [None, 'KOJC', 'KLWC'],
-    'KOWI': [None, 'KIXD', 'KUKL'],
-    'KLRY': [None, 'KOJC', 'KLXT'],
-    'KFSK': [None, 'KPTS', 'KCNU'],
-    'KPTS': [None, 'KFSK', 'KJLN'],
-    'KJLN': [None, 'KPTS', 'KHFJ'],
-    'KGMJ': [None, 'KJLN', 'KHFJ'],
-    'KHFJ': [None, 'KJLN', 'KSGF'],
-    'KBBG': [None, 'KFWB', 'KSGF'],
-    'KFWB': [None, 'KBBG', 'KSGF'],
-    'KSGF': [None, 'KFWB', 'KHFJ'],
-    'KLBO': [None, 'KOZS', 'KTBN'],
-    'KTBN': [None, 'KLBO', 'KOZS'],
-    'KOZS': [None, 'KLBO', 'KTBN'],
-    'KAIZ': [None, 'KOZS', 'KTBN'],
-    'KRAW': [None, 'KGLY', 'KDMO'],
-    'KGLY': [None, 'KRAW', 'KSZL'],
-    'KSZL': [None, 'KDMO', 'KGLY'],
-    'KDMO': [None, 'KSZL', 'KMHL'],
-    'KMHL': [None, 'KDMO', 'KSZL'],
-    'KMBY': [None, 'KVER', 'KCOU'],
-    'KVER': [None, 'KCOU', 'KMHL'],
-    'KCOU': [None, 'KJEF', 'KVER'],
-    'KJEF': [None, 'KCOU', 'KVER'],
+    'KBVO': [None, 'KIDP', 'KCFV', False],
+    'KIDP': [None, 'KCFV', 'KPPF', False],
+    'KCFV': [None, 'KIDP', 'KPPF', False],
+    'KPPF': [None, 'KCFV', 'KCNU', False],
+    'KCNU': [None, 'KPPF', 'KCFV', False],
+    'KUKL': [None, 'KEMP', 'KOWI', False],
+    'K13K': [None, 'KEQA', 'KEMP', False],
+    'KEQA': [None, 'K13K', 'KEMP', False],
+    'KEMP': [None, 'KUKL', 'K13K', False],
+    'KFRI': [None, 'KMHK', 'KFOE', False],
+    'KMHK': [None, 'KFRI', 'KTOP', False],
+    'KFOE': [None, 'KTOP', 'KLWC', False],
+    'KTOP': [None, 'KFOE', 'KLWC', False],
+    'KLWC': [None, 'KTOP', 'KIXD', False],
+    'KMCI': [None, 'KMKC', 'KGPH', False],
+    'KGPH': [None, 'KMCI', 'KMKC', False],
+    'KMKC': [None, 'KMCI', 'KLXT', False],
+    'KLXT': [None, 'KMKC', 'KOJC', False],
+    'KOJC': [None, 'KIXD', 'KLXT', False],
+    'KIXD': [None, 'KOJC', 'KLWC', False],
+    'KOWI': [None, 'KIXD', 'KUKL', False],
+    'KLRY': [None, 'KOJC', 'KLXT', False],
+    'KFSK': [None, 'KPTS', 'KCNU', False],
+    'KPTS': [None, 'KFSK', 'KJLN', False],
+    'KJLN': [None, 'KPTS', 'KHFJ', False],
+    'KGMJ': [None, 'KJLN', 'KHFJ', False],
+    'KHFJ': [None, 'KJLN', 'KSGF', False],
+    'KBBG': [None, 'KFWB', 'KSGF', False],
+    'KFWB': [None, 'KBBG', 'KSGF', False],
+    'KSGF': [None, 'KFWB', 'KHFJ', False],
+    'KLBO': [None, 'KOZS', 'KTBN', False],
+    'KTBN': [None, 'KLBO', 'KOZS', False],
+    'KOZS': [None, 'KLBO', 'KTBN', False],
+    'KAIZ': [None, 'KOZS', 'KTBN', False],
+    'KRAW': [None, 'KGLY', 'KDMO', False],
+    'KGLY': [None, 'KRAW', 'KSZL', False],
+    'KSZL': [None, 'KDMO', 'KGLY', False],
+    'KDMO': [None, 'KSZL', 'KMHL', False],
+    'KMHL': [None, 'KDMO', 'KSZL', False],
+    'KMBY': [None, 'KVER', 'KCOU', False],
+    'KVER': [None, 'KCOU', 'KMHL', False],
+    'KCOU': [None, 'KJEF', 'KVER', False],
+    'KJEF': [None, 'KCOU', 'KVER', False],
 }
 
 # Create comma-separated list of station IDs for web api
 id_str = ','.join(station_cfg.keys())
 uri='https://aviationweather.gov/api/data/metar'
 
-color_magenta = (16, 0, 16)
-color_red = (32, 0, 0)
-color_blue = (0, 0, 32)
-color_yellow = (18, 14, 0)
-color_green = (0, 32, 0)
+color_magenta = (8, 0, 8)
+color_red = (16, 0, 0)
+color_blue = (0, 0, 16)
+color_yellow = (14, 10, 0)
+color_green = (0, 16, 0)
 num_black = 0
 num_magenta = 1
 num_red = 2
@@ -76,6 +76,8 @@ leds = neopixel.NeoPixel(board.D18, led_len, auto_write=False, pixel_order = neo
 # Update time delay for LED strip in seconds
 led_td = 5
 fc_arr = [0] * len(station_cfg)
+z_arr = [(0, 0)] * len(station_cfg)
+z_qty = 0
 
 # Set up the legend LEDs
 for i in range(led_skip):
@@ -86,10 +88,12 @@ for i in range(5):
 first_loop = True
 while True:
     print(time.strftime('%m.%d-%H:%M:%S'), ' === Start processing loop ===')
+    z_qty = 0
     for i in range(len(fc_arr)):
         fc_arr[i] = 0
     for k in station_cfg.keys():
         station_cfg[k][0] = None
+        station_cfg[k][3] = False
     r = requests.get('https://aviationweather.gov/api/data/metar', params={'ids' : id_str, 'format' : 'json'})
 
     wjson=json.loads(r.text)
@@ -98,8 +102,12 @@ while True:
 
     for w in wjson:
         flt_cat = w.get('fltCat', None)
+        if (flt_cat == 'VFR' or flt_cat == None) and (w.get('wspd', 0) >= 25 or w.get('wgst', 0) >= 25):
+            flt_cat = 'WVFR'
         if flt_cat == None:
             continue
+        if 'TS' in w.get('wxString', ''):
+            station_cfg[w['icaoId']][3] = True
         station_cfg[w['icaoId']][0] = flt_cat
 
     # Check the status determined above to see if any were not processed. Use the
@@ -125,6 +133,9 @@ while True:
         if flt_cat != None:
             print(f'{k}: {flt_cat}')
             fc_arr[fc_n] = color_map[flt_cat]
+        if v[3] == True:
+            z_arr[z_qty][0:2] = [fc_n, fc_arr[fc_n]]
+            z_qty += 1
         fc_n += 1
 
     # Update the LED strip
