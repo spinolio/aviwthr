@@ -74,9 +74,8 @@ led_n0 = 5 + led_skip
 led_len = led_n0 + len(station_cfg)
 leds = neopixel.NeoPixel(board.D18, led_len, auto_write=False, pixel_order = neopixel.GRB)
 # Update time delay for LED strip in seconds
-led_td = 5
 fc_arr = [0] * len(station_cfg)
-z_arr = [(0, 0)] * len(station_cfg)
+z_arr = [[0 for _ in range(2)] for _ in range(len(station_cfg))]
 z_qty = 0
 
 # Set up the legend LEDs
@@ -94,8 +93,8 @@ while True:
     for k in station_cfg.keys():
         station_cfg[k][0] = None
         station_cfg[k][3] = False
-    r = requests.get('https://aviationweather.gov/api/data/metar', params={'ids' : id_str, 'format' : 'json'})
 
+    r = requests.get('https://aviationweather.gov/api/data/metar', params={'ids' : id_str, 'format' : 'json'})
     wjson=json.loads(r.text)
 
     # Save the fltCat value..
@@ -107,6 +106,7 @@ while True:
         if flt_cat == None:
             continue
         if 'TS' in w.get('wxString', ''):
+            print('Lightning: ', w['icaoId'])
             station_cfg[w['icaoId']][3] = True
         station_cfg[w['icaoId']][0] = flt_cat
 
@@ -153,6 +153,22 @@ while True:
         leds.show()
         time.sleep(0.05)
 
-    for t in range(900, -1, -led_td):
-        time.sleep(led_td)
-        leds.show()
+    for t in range(900, -1, -5):
+        time.sleep(1)
+        if z_qty > 0:
+            for n in range(3):
+                for i in range(z_qty):
+                    leds[led_n0 + z_arr[i][0]] = [16,16,16]
+                leds.show()
+                time.sleep(0.05)
+                for i in range(z_qty):
+                    leds[led_n0 + z_arr[i][0]] = [0, 0, 0]
+                leds.show()
+                time.sleep(0.05)
+            for i in range(z_qty):
+                leds[led_n0 + z_arr[i][0]] = colors[z_arr[i][1]]
+            leds.show()
+            time.sleep(3.7)
+        else:
+            leds.show()
+            time.sleep(4)
