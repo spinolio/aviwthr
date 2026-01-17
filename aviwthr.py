@@ -94,8 +94,26 @@ while True:
         station_cfg[k][0] = None
         station_cfg[k][3] = False
 
-    r = requests.get('https://aviationweather.gov/api/data/metar', params={'ids' : id_str, 'format' : 'json'})
-    wjson=json.loads(r.text)
+    get_tries = 5
+    while get_tries > 0:
+        try:
+            r = requests.get('https://aviationweather.gov/api/data/metar', params={'ids' : id_str, 'format' : 'json'})
+        except Exception as e:
+            print(str(e))
+        else:
+            break
+        get_tries -= 1
+        time.sleep(30)
+    if get_tries == 0:
+        leds.fill((12, 6, 0))
+        leds.show()
+        exit(1)
+
+    try:
+        wjson=json.loads(r.text)
+    except Exception as e:
+        print(str(e))
+        exit(1)
 
     # Save the fltCat value..
 
