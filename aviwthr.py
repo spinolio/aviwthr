@@ -4,6 +4,40 @@ import board
 import neopixel
 import time
 
+class FcLEDs:
+    def __init__(self, leds, n0, led_len, colors):
+        self.leds = leds
+        self.n0 = n0
+        self.led_len = led_len
+        self.colors = colors
+
+    def led_in(self, fca):
+        for i in range(len(fca)):
+            self.leds[i + self.n0] = self.colors[fca[i]]
+            self.leds.show()
+            time.sleep(0.05)
+
+    def led_out(self):
+        for i in range(self.led_len):
+            self.leds[i + self.n0] = (0,0,0)
+            self.leds.show()
+            time.sleep(0.05)
+
+    def led_flash(self, z_arr, z_qty):
+            for n in range(3):
+                for i in range(z_qty):
+                    self.leds[self.n0 + z_arr[i][0]] = [16,16,16]
+                self.leds.show()
+                time.sleep(0.05)
+                for i in range(z_qty):
+                    self.leds[self.n0 + z_arr[i][0]] = [0, 0, 0]
+                self.leds.show()
+                time.sleep(0.05)
+            for i in range(z_qty):
+                self.leds[self.n0 + z_arr[i][0]] = self.colors[z_arr[i][1]]
+            self.leds.show()
+
+
 station_cfg = {
     'KBVO': [None, 'KIDP', 'KCFV', False],
     'KIDP': [None, 'KCFV', 'KPPF', False],
@@ -52,7 +86,7 @@ station_cfg = {
 
 # Create comma-separated list of station IDs for web api
 id_str = ','.join(station_cfg.keys())
-uri='https://aviationweather.gov/api/data/metar'
+url='https://aviationweather.gov/api/data/metar'
 
 color_magenta = (8, 0, 8)
 color_red = (16, 0, 0)
@@ -73,8 +107,10 @@ led_skip = 2
 led_n0 = 5 + led_skip
 led_len = led_n0 + len(station_cfg)
 leds = neopixel.NeoPixel(board.D18, led_len, auto_write=False, pixel_order = neopixel.GRB)
-# Update time delay for LED strip in seconds
 fc_arr = [0] * len(station_cfg)
+fcleds = FcLEDs(leds, led_n0, len(station_cfg), colors)
+
+# Lightning data; Need to store current value while flashing white.
 z_arr = [[0 for _ in range(2)] for _ in range(len(station_cfg))]
 z_qty = 0
 
@@ -84,8 +120,14 @@ for i in range(led_skip):
 for i in range(5):
     leds[i+led_skip] = colors[i+1]
 
+start_yday = time.localtime()[7]
 first_loop = True
 while True:
+    # If the day has changed, exit to allow external scheduler to restart script and roll the log.
+    if start_yday != time.localtime()[7]:
+        fcleds.led_out()
+        exit(0)
+
     print(time.strftime('%m.%d-%H:%M:%S'), ' === Start processing loop ===')
     z_qty = 0
     for i in range(len(fc_arr)):
@@ -97,7 +139,7 @@ while True:
     get_tries = 5
     while get_tries > 0:
         try:
-            r = requests.get('https://aviationweather.gov/api/data/metar', params={'ids' : id_str, 'format' : 'json'})
+            r = requests.get(url, params={'ids' : id_str, 'format' : 'json'})
         except Exception as e:
             print(str(e))
         else:
@@ -162,30 +204,15 @@ while True:
     if first_loop == True:
         first_loop = False
     else:
-        for i in range(len(station_cfg)):
-            leds[i + led_n0] = (0,0,0)
-            leds.show()
-            time.sleep(0.05)
-    for i in range(len(station_cfg)):
-        leds[i + led_n0] = colors[fc_arr[i]]
-        leds.show()
-        time.sleep(0.05)
+        fcleds.led_out()
+    fcleds.led_in(fc_arr)
+
+    # Now just wait, flashing white for lightning stations, if any.
 
     for t in range(900, -1, -5):
         time.sleep(1)
         if z_qty > 0:
-            for n in range(3):
-                for i in range(z_qty):
-                    leds[led_n0 + z_arr[i][0]] = [16,16,16]
-                leds.show()
-                time.sleep(0.05)
-                for i in range(z_qty):
-                    leds[led_n0 + z_arr[i][0]] = [0, 0, 0]
-                leds.show()
-                time.sleep(0.05)
-            for i in range(z_qty):
-                leds[led_n0 + z_arr[i][0]] = colors[z_arr[i][1]]
-            leds.show()
+            fcleds.led_flash(z_arr, z_qty)
             time.sleep(3.7)
         else:
             leds.show()
